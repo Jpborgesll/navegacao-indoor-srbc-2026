@@ -1,40 +1,58 @@
-# Backend – API de Navegação Indoor
+# Backend - Sistema LOCARE
 
-API REST desenvolvida com **FastAPI** (Python 3.13+) para o sistema de navegação indoor.
+Este diretório contém a API backend do sistema de navegação indoor LOCARE, construída com FastAPI e PostgreSQL/PostGIS.
 
-## Pré-requisitos
+## Tecnologias
+- **Python 3.13+**
+- **FastAPI**: Framework web de alta performance.
+- **SQLAlchemy (Async)**: ORM para interação com o banco.
+- **asyncpg**: Driver assíncrono para PostgreSQL.
+- **PostgreSQL + PostGIS + pgRouting**: Banco de dados geoespacial.
 
-- Python 3.13+
-- PostgreSQL 16 com extensões **PostGIS** e **pgRouting**
+## Estrutura do Projeto
+```text
+backend/
+├── app/
+│   ├── core/      # Configurações e DB
+│   ├── routers/   # Endpoints da API
+│   ├── schemas/   # Validação de dados (Pydantic)
+│   ├── main.py    # Ponto de entrada
+├── requirements.txt # Dependências do projeto
+```
 
-## Instalação
+## Configuração e Instalação
 
+1. **Ambiente Virtual:**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+2. **Dependências:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Variáveis de Ambiente:**
+   Crie um arquivo `.env` com as seguintes variáveis:
+   ```env
+   DATABASE_URL=postgresql+asyncpg://user:passwd@localhost:5432/nome_do_banco
+   ```
+
+## Executando a Aplicação
 ```bash
-pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
-
-## Configuração
-
-Crie um arquivo `.env` na raiz do backend:
-
-```env
-DATABASE_URL=postgresql+asyncpg://usuario:senha@localhost:5432/nav_indoor
-```
-
-## Execução
-
-```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
+A API estará disponível em `http://localhost:8000`.
+A documentação interativa (Swagger) pode ser acessada em `http://localhost:8000/docs`.
 
 ## Endpoints
-
-| Endpoint | Método | Descrição |
-|---|---|---|
-| `/spaces/{id}/version` | GET | Versão atual do mapa |
-| `/spaces/{id}/sync` | GET | Sincronização GeoJSON completa |
-| `/search` | GET | Busca de unidades e POIs |
-| `/route/calculate` | POST | Cálculo de rota acessível |
-| `/analytics/ping` | POST | Registro anônimo de presença |
-| `/admin/units/{id}` | PATCH | Atualização de status de unidade |
-| `/admin/spaces/publish` | POST | Publicação de nova versão do mapa |
+| Método | Endpoint | Descrição | Requisito / US |
+| :--- | :--- | :--- | :--- |
+| GET | `/spaces/{id}/version` | Retorna a versão atual (`space_version`) para o app decidir se precisa baixar novos dados. | RNF07 (Offline-First) |
+| GET | `/spaces/{id}/sync` | Download do pacote GeoJSON: Beacons, Grafo, POIs e Units (com atributo `is_blocked`). | US01 (Sincronização) |
+| GET | `/search` | Busca por nome ou categoria de Unit/POI. Retorna o ID e a coordenada de entrada (`entry_point`). | US02 (Busca) |
+| POST | `/route/calculate` | Calcula a rota entre pontos, filtrando `is_blocked = true` e aplicando "custo infinito" para acessibilidade. | US03 (Acessibilidade) |
+| POST | `/analytics/ping` | Coleta de dados anonimizados contendo geom, level e timestamp. | US05 (Mapa de Calor) |
+| PATCH | `/admin/units/{id}` | Atualiza o status da Unit (ex: `is_blocked`) para manutenção ou fechamento. | US04 (Bloqueio) |
+| POST | `/admin/spaces/publish` | Incrementa a versão do espaço após edições no QGIS/Painel, disparando alertas de atualização. | RF04 (Gestão) |

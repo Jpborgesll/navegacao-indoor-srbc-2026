@@ -1,37 +1,28 @@
-# Aplicativo Android – Navegação Indoor
+# Módulo de Navegação Indoor (App)
 
-Aplicativo nativo Android desenvolvido em **Kotlin** com **Jetpack Compose**.
+Esta pasta contém o coração do sistema de rastreamento e navegação do projeto **Locare**. O sistema evoluiu de protótipos em Python para um aplicativo Android nativo completo, focado em alta precisão e integração com serviços de mapa.
 
-## Pré-requisitos
+## Evolução e Funcionalidades
 
-- Android Studio Hedgehog ou superior
-- Dispositivo físico Android com sensores IMU (acelerômetro, giroscópio, magnetômetro)
-- Bluetooth habilitado para varredura de beacons BLE
+### 1. Aplicativo Android Nativo (`app/PDRMadgwick/`)
+O cliente principal desenvolvido em **Kotlin** e **Jetpack Compose**:
+*   **Filtro de Madgwick (MARG):** Fusão sensorial avançada (Acelerômetro + Giroscópio + Magnetômetro) para estimativa de orientação (Yaw/Heading) estável e resistente a ruídos.
+*   **Pedestrian Dead Reckoning (PDR):** Estimativa de deslocamento baseada em passos e comprimento de passada dinâmico.
+*   **Integração com Backend:** Sincronização de dados de espaços (GeoJSON), busca de salas/POIs e cálculo de rota em tempo real via API REST.
+*   **Mapa Interativo:** Renderização dinâmica do percurso percorrido (IMU) sobreposto à rota sugerida pelo servidor (pgRouting).
 
-## Configuração
+### 2. Protótipos em Python
+Scripts originais utilizados para validação de algoritmos e testes rápidos:
+*   `PDRMadgwick.py`: Implementação do filtro de atitude e lógica de passos.
+*   `localizacao_imu.py`: Protótipo inicial de visualização.
 
-Em `app/PDRMadgwick/app/src/main/java/com/example/pdrmadgwick/LocareApi.kt`,
-atualize a constante `BASE_URL` para o endereço do backend:
+## Tecnologias Principais
+*   **Android SDK / Kotlin**: Plataforma de desenvolvimento mobile.
+*   **Jetpack Compose**: UI moderna e reativa.
+*   **Retrofit / OkHttp**: Comunicação com o Backend FastAPI.
+*   **Kotlinx Serialization**: Processamento de dados GeoJSON.
+*   **Sensores Inerciais (IMU)**: Acesso direto via `SensorManager`.
 
-```kotlin
-const val BASE_URL = "http://SEU_SERVIDOR:8000/"
-```
-
-## Execução
-
-1. Abra a pasta `app/PDRMadgwick/` no Android Studio
-2. Sincronize o projeto com Gradle
-3. Execute em um dispositivo físico (emulador não suporta sensores IMU reais)
-
-## Arquitetura
-
-```
-PDRMadgwick/
-└── app/src/main/java/com/example/pdrmadgwick/
-    ├── MainActivity.kt           # Ponto de entrada
-    ├── NavigationScreen.kt       # Interface Jetpack Compose
-    ├── NavigationViewModel.kt    # Estado e lógica MVVM
-    ├── PDRLogic.kt               # Filtro de Madgwick + PDR
-    ├── RouteCalculator.kt        # Cálculo e exibição de rotas
-    └── LocareApi.kt              # Cliente HTTP (Retrofit)
-```
+## Estrutura do Diretório
+- `PDRMadgwick/`: Projeto Android (Kotlin/Compose).
+- `PDRMadgwick.py`: Projeto incial em Python para testes.

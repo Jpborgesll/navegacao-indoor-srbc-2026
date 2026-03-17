@@ -1,26 +1,17 @@
-# Banco de Dados – Navegação Indoor
+# Módulo de Banco de Dados - LOCARE
 
-Schema PostgreSQL com extensões **PostGIS** e **pgRouting**.
+Este diretório contém toda a modelagem e scripts de estrutura de dados para o sistema de navegação indoor.
 
-## Pré-requisitos
+## 📂 Estrutura de Pastas
+- **/diagrams**: Contém o Modelo Entidade-Relacionamento (MER) em formato de imagem e arquivos editáveis.
+- **/schemas**: Scripts SQL para criação das tabelas e extensões necessárias (PostGIS).
 
-```sql
-CREATE EXTENSION postgis;
-CREATE EXTENSION pgrouting;
-```
+## 🛠️ Tecnologias Utilizadas
+- **PostgreSQL**: Banco de dados relacional.
+- **PostGIS**: Extensão para suporte a dados geográficos e cálculos de rota.
 
-## Instalação
-
-```bash
-psql -U postgres -d nav_indoor -f schemas/schema.sql
-```
-
-## Entidades Principais
-
-| Tabela | Descrição |
-|---|---|
-| `spaces` | Ambiente físico (ex.: shopping, hospital) |
-| `units` | Salas, lojas ou departamentos |
-| `beacons` | Pontos de referência BLE com coordenadas (x, y) |
-| `edge_lines` | Arestas do grafo de navegação com atributos de acessibilidade |
-| `pois` | Pontos de interesse vinculados a unidades |
+## 📌 Principais Entidades
+- **Space**: Representa o ambiente físico (ex: Prédio da UFG).
+- **Unit**: Salas ou departamentos dentro de um espaço.
+- **Beacon**: Pontos de referência para localização via sinais (Bluetooth/IMU).
+- **Edge Line**: Caminhos conectando os pontos para cálculo de trajetória.
