@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.env
+.env.*
+
+# Android / Kotlin
+*.apk
+*.aab
+*.ap_
+*.dex
+local.properties
+.gradle/
+app/build/
+build/
+*.iml
+.idea/
+*.keystore
+
+# LaTeX
+artigo/*.aux
+artigo/*.log
+artigo/*.out
+artigo/*.toc
+artigo/*.bbl
+artigo/*.blg
+artigo/*.synctex.gz
+artigo/*.fls
+artigo/*.fdb_latexmk
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
