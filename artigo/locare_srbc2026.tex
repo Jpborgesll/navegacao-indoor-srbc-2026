@@ -251,6 +251,47 @@ agregados no endpoint de analytics, sem persistência de identificadores de usu�
 ou trajetórias individuais.
 
 % ============================================================
+\section{Disponibilidade e Demonstração}
+% ============================================================
+
+\subsection{Código-Fonte e Documentação}
+
+O sistema é disponibilizado publicamente sob a licença
+\textbf{Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)}.
+O código-fonte completo, incluindo o backend FastAPI, o aplicativo Android e
+os esquemas do banco de dados, está disponível no repositório:
+
+\begin{itemize}
+  \item \textbf{Repositório:}
+        \url{https://github.com/Jpborgesll/navegacao-indoor-srbc-2026}
+  \item \textbf{Documentação e manual de instalação:}
+        \url{https://github.com/Jpborgesll/navegacao-indoor-srbc-2026#readme}
+\end{itemize}
+
+O repositório contém instruções de instalação, requisitos de execução,
+exemplos mínimos de uso e arquivos de configuração para execução via Docker.
+
+\subsection{Planejamento da Demonstração no SBRC}
+
+A demonstração ao vivo do sistema será realizada com o seguinte conjunto de equipamentos:
+
+\begin{itemize}
+  \item \textbf{Smartphone Android} (API 26+) com o aplicativo instalado,
+        contendo sensores IMU (acelerômetro, giroscópio e magnetômetro);
+  \item \textbf{3 beacons BLE comerciais} (ex.: Estimote ou compatível iBeacon/Eddystone)
+        posicionados no espaço de demonstração;
+  \item \textbf{Notebook} com Docker e docker-compose para execução local do backend
+        FastAPI e do banco de dados PostgreSQL/PostGIS;
+  \item \textbf{Roteador Wi-Fi portátil} para comunicação entre o smartphone e o backend
+        local durante a demonstração.
+\end{itemize}
+
+A demonstração consistirá em: (i) varredura dos beacons pelo aplicativo;
+(ii) cálculo e exibição de rota acessível em tempo real; e
+(iii) atualização contínua da posição estimada via fusão BLE + PDR enquanto
+o usuário percorre o espaço.
+
+% ============================================================
 \section{Conclusão}
 % ============================================================
 
