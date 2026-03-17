@@ -150,17 +150,8 @@ preservando a semântica geoespacial dos dados ao longo de toda a pilha.
 
 \begin{figure}[ht]
 \centering
-\begin{verbatim}
-  [Aplicativo Android]          [Backend FastAPI]
-  BLE Scanner + PDR   <-HTTP->  /spaces/sync
-  NavigationViewModel           /route/calculate
-  Jetpack Compose               /analytics/ping
-         |                            |
-         |                    [PostgreSQL 16]
-         |                    PostGIS + pgRouting
-         +---- offline-first: grafo local ----+
-\end{verbatim}
-\caption{Visão geral da arquitetura do sistema de navegação indoor.}
+\includegraphics[width=.95\textwidth]{fluxograma.jpeg}
+\caption{Fluxograma de navegação indoor: sensoriamento, localização, rede e destino.}
 \label{fig:arquitetura}
 \end{figure}
 
@@ -221,6 +212,19 @@ de interface, seguindo a arquitetura MVVM com \texttt{NavigationViewModel} como
 ponto central de estado reativo (\texttt{StateFlow}). A comunicação com o
 \textit{backend} utiliza Retrofit/OkHttp com serialização GeoJSON via
 Kotlinx Serialization.
+
+A Figura~\ref{fig:telas} apresenta as principais telas do aplicativo: a busca de
+destino por nome de ambiente e a visualização da rota calculada com instrução de
+navegação em tempo real.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=.38\textwidth]{tela_busca.png}
+\hspace{0.05\textwidth}
+\includegraphics[width=.38\textwidth]{tela_navegacao.png}
+\caption{Telas do aplicativo: busca por ambiente (esquerda) e navegação ativa (direita).}
+\label{fig:telas}
+\end{figure}
 
 % ============================================================
 \section{Posicionamento Indoor Híbrido}
