@@ -6,6 +6,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
 \usepackage{amsmath}
+\usepackage{booktabs}
 
 \sloppy
 
@@ -36,118 +37,159 @@
 %  ABSTRACT (inglês)
 % ============================================================
 \begin{abstract}
-Indoor positioning in large enclosed environments such as shopping centers and hospitals
-presents significant challenges due to GPS signal unavailability. This paper presents
-an indoor navigation system that combines Bluetooth Low Energy (BLE) beacons with
-Pedestrian Dead Reckoning (PDR) through IMU sensor fusion using the Madgwick filter. The system operates on an
-offline-first architecture, synchronizing a spatial graph to the mobile device and
-computing accessible routes via pgRouting. Results demonstrate sub-3-meter positioning
-accuracy in 95\% of test cases alongside LGPD-compliant B2B analytics, evidencing the
-viability of a low-cost, scalable indoor navigation solution.
+The unavailability of GPS signals in large enclosed environments such as shopping
+centers, hospitals, and university campuses creates significant challenges for
+pedestrian navigation. Existing solutions often rely on costly infrastructure or
+proprietary hardware, limiting large-scale adoption. This paper presents an
+open-source indoor navigation system that fuses Bluetooth Low Energy (BLE) beacon
+anchoring with Pedestrian Dead Reckoning (PDR) using IMU sensor fusion via the
+Madgwick filter. The system adopts an offline-first architecture, synchronizing
+a versioned geospatial graph to the mobile device and computing accessible routes
+via pgRouting. The tool is fully available under a CC BY-SA 4.0 license, including
+a containerized deployment via Docker, and was evaluated in a real indoor scenario
+at UFG's Institute of Informatics.
 \end{abstract}
 
 % ============================================================
 %  RESUMO (português)
 % ============================================================
 \begin{resumo}
-O posicionamento indoor em grandes ambientes fechados, como shoppings e hospitais,
-apresenta desafios significativos pela indisponibilidade do sinal GPS. Este artigo
-apresenta um sistema de navegação indoor que combina beacons Bluetooth Low Energy (BLE) com Dead Reckoning
-Pedestre (PDR) por meio de fusão de sensores IMU utilizando o Filtro de Madgwick.
-O sistema opera com arquitetura offline-first, sincronizando o grafo espacial para o
-dispositivo móvel e calculando rotas acessíveis via pgRouting. Os resultados demonstram
-acurácia de posicionamento inferior a 3 metros em 95\% dos casos de teste, além de
-analytics B2B em conformidade com a LGPD, evidenciando a viabilidade de uma solução
-de navegação indoor de baixo custo e escalável.
+A indisponibilidade do sinal GPS em ambientes fechados de grande escala, como
+\textit{shoppings}, hospitais e \textit{campi} universitários, impõe desafios
+significativos à navegação pedestre. Soluções existentes frequentemente dependem
+de infraestrutura custosa ou hardware proprietário, limitando sua adoção em escala.
+Este artigo apresenta um sistema de navegação indoor de código aberto que combina
+ancoragem por beacons Bluetooth Low Energy (BLE) com Dead Reckoning Pedestre (PDR)
+por meio de fusão de sensores IMU utilizando o Filtro de Madgwick. O sistema adota
+arquitetura \textit{offline-first}, sincronizando um grafo geoespacial versionado
+para o dispositivo móvel e calculando rotas acessíveis via pgRouting. A ferramenta
+está disponível integralmente sob licença CC BY-SA 4.0, com implantação conteinerizada
+via Docker, e foi avaliada em cenário indoor real no Instituto de Informática da UFG.
 \end{resumo}
 
 % ============================================================
 \section{Introdução}
 % ============================================================
 
-O crescimento de ambientes construídos de grande escala — shoppings, hospitais,
-aeroportos, campus universitários — impõe um problema recorrente à experiência do
-usuário: a dificuldade de orientação espacial em interiores. Embora o GPS seja onipresente
-em navegação externa, sua eficácia se degrada drasticamente em ambientes fechados, onde
-a atenuação e multipercurso dos sinais satelitais inviabilizam a localização precisa
-\cite{Liu2007}.
+Ambientes construídos de grande escala — \textit{shoppings}, hospitais, aeroportos
+e \textit{campi} universitários — concentram diariamente milhões de usuários que
+dependem de orientação espacial eficiente. Estima-se que 80\% do tempo das pessoas
+seja passado em ambientes internos \cite{Zafari2019}, onde o GPS apresenta degradação
+severa de desempenho em razão da atenuação e do multipercurso dos sinais satelitais
+\cite{Liu2007}. Essa lacuna tecnológica afeta de modo desigual usuários com mobilidade
+reduzida, que dependem de informações de acessibilidade em tempo real para planejar
+seus percursos.
 
-Soluções existentes para este problema frequentemente recorrem a infraestruturas
-custosas, como sistemas de câmeras com visão computacional, redes Wi-Fi densas ou
-\textit{ultra-wideband} (UWB), criando barreiras econômicas para adoção em escala
-\cite{Zafari2019}. A sinalização física estática, alternativa comum, não oferece
-personalização de rota, não se adapta a mudanças do espaço e é inacessível para usuários
-com necessidades de mobilidade reduzida.
+As abordagens existentes para posicionamento indoor podem ser agrupadas em três
+categorias: baseadas em infraestrutura dedicada (\textit{Ultra-Wideband}, câmeras),
+baseadas em sinais de oportunidade (Wi-Fi, BLE) e baseadas em sensores inerciais
+(PDR/IMU). Soluções puramente infraestruturais oferecem alta precisão, porém com
+custo de implantação proibitivo. Soluções puramente inerciais, por sua vez, acumulam
+erro de deriva que inviabiliza uso prolongado sem mecanismos de correção externos
+\cite{Jimenez2009}.
 
-Este trabalho apresenta um \textbf{sistema de navegação indoor} que endereça
-essas limitações por meio de uma abordagem híbrida: beacons Bluetooth Low Energy (BLE)
-fornecem pontos de ancoragem para calibração de posição, enquanto o Dead Reckoning
-Pedestre (PDR), viabilizado pelo Filtro de Madgwick sobre os sensores IMU do próprio
-smartphone, mantém o rastreamento contínuo entre beacons. O roteamento é realizado
-sobre um grafo geoespacial persistido em PostgreSQL com extensões PostGIS e pgRouting,
-garantindo suporte a perfis de acessibilidade e operação offline-first.
+Este trabalho propõe e implementa uma \textbf{ferramenta de navegação indoor} que
+endereça essas limitações por meio de uma abordagem híbrida de baixo custo: beacons
+BLE comerciais fornecem âncoras de posição esporádicas, enquanto o Filtro de Madgwick
+aplicado sobre os sensores IMU do próprio \textit{smartphone} mantém o rastreamento
+contínuo entre âncoras. O roteamento é computado sobre um grafo geoespacial persistido
+em PostgreSQL com as extensões PostGIS e pgRouting, com suporte nativo a perfis de
+acessibilidade. A arquitetura \textit{offline-first} elimina dependência de conectividade
+contínua durante a navegação.
 
 As principais contribuições deste trabalho são:
 \begin{itemize}
-  \item Uma arquitetura de fusão sensorial BLE + PDR de baixo custo sem hardware
+  \item Uma arquitetura de fusão sensorial BLE + PDR de baixo custo, sem hardware
         dedicado além de beacons comerciais;
-  \item Um backend RESTful com roteamento acessível e sincronização versionada para
-        operação offline;
-  \item Analytics de fluxo de pessoas em conformidade com a LGPD para gestores do espaço.
+  \item Um \textit{backend} RESTful com roteamento acessível e sincronização versionada
+        por delta, viabilizando operação \textit{offline};
+  \item Uma ferramenta completa e reproduzível, distribuída com contêineres Docker
+        e licença aberta (CC BY-SA 4.0);
+  \item Analytics de fluxo de pessoas em conformidade com a LGPD, destinado a
+        gestores de espaços físicos.
 \end{itemize}
 
 % ============================================================
 \section{Trabalhos Relacionados}
 % ============================================================
 
-A literatura de posicionamento indoor pode ser organizada em três grandes abordagens:
-baseada em infraestrutura (Wi-Fi, BLE, UWB), inercial (PDR/IMU) e híbrida
-\cite{Zafari2019}.
+A literatura de posicionamento indoor tem sido extensivamente revisada nos últimos
+anos \cite{Zafari2019, Liu2007}. As abordagens podem ser sistematizadas em função
+de três critérios: precisão, custo de infraestrutura e dependência de conectividade.
 
-Sistemas baseados exclusivamente em RSSI de beacons BLE, como iBeacon da Apple e
-Eddystone do Google, apresentam precisão de 1 a 3 metros em condições controladas,
-mas sofrem forte degradação em ambientes com obstáculos e tráfego humano intenso
-\cite{Faragher2015}. Soluções puramente inerciais, por sua vez, acumulam erro de
-deriva ao longo do tempo sem mecanismos de correção.
+Sistemas baseados exclusivamente em RSSI de beacons BLE — como iBeacon (Apple) e
+Eddystone (Google) — atingem precisão de 1 a 3 metros em condições controladas,
+porém sofrem degradação acentuada em ambientes com obstáculos e tráfego humano
+intenso \cite{Faragher2015}. Técnicas de \textit{fingerprinting} Wi-Fi melhoram a
+robustez em ambientes densos, mas exigem mapeamento prévio extenso e são sensíveis
+a mudanças no ambiente.
 
-A abordagem híbrida — fusão de BLE com PDR — tem sido explorada como meio de
-combinar a vantagem posicional dos beacons com a continuidade do PDR. Trabalhos
-como \cite{Jimenez2009} demonstraram que o Filtro de Madgwick oferece fusão
-computacionalmente eficiente de acelerômetro, giroscópio e magnetômetro (sensor MARG),
-superior ao filtro de Kalman em termos de custo computacional para dispositivos móveis.
+Soluções baseadas em PDR/IMU oferecem continuidade de rastreamento sem infraestrutura,
+mas acumulam erro de deriva proporcional à distância percorrida. O Filtro de Madgwick
+\cite{Madgwick2010} emerge como alternativa ao Filtro de Kalman Estendido (EKF) por
+apresentar complexidade computacional $\mathcal{O}(1)$ por amostra, tornando-o
+adequado para execução em dispositivos móveis de recursos limitados.
 
-O sistema proposto diferencia-se dos trabalhos anteriores por integrar a fusão sensorial a uma
-pilha completa de roteamento acessível e analytics, disponibilizada como sistema
-end-to-end para gestores de espaços internos.
+A abordagem híbrida BLE + PDR tem sido explorada na literatura para combinar a
+precisão posicional dos beacons com a continuidade do PDR \cite{Jimenez2009}.
+O presente trabalho diferencia-se por: (i) integrar a fusão sensorial a uma pilha
+completa de roteamento geoespacial acessível; (ii) adotar arquitetura
+\textit{offline-first} com sincronização por delta; e (iii) disponibilizar a
+ferramenta como artefato reproduzível com implantação conteinerizada, aspectos
+ausentes nos trabalhos correlatos.
 
 % ============================================================
 \section{Arquitetura do Sistema}
 % ============================================================
 
-O sistema é composto por três camadas principais: o \textbf{aplicativo Android},
-o \textbf{backend FastAPI} e o \textbf{banco de dados geoespacial}.
+O sistema é composto por três camadas principais, conforme ilustrado na
+Figura~\ref{fig:arquitetura}: o \textbf{aplicativo Android}, o
+\textbf{\textit{backend} FastAPI} e o \textbf{banco de dados geoespacial}.
+A comunicação entre camadas utiliza GeoJSON como formato de serialização,
+preservando a semântica geoespacial dos dados ao longo de toda a pilha.
+
+\begin{figure}[ht]
+\centering
+\begin{verbatim}
+  [Aplicativo Android]          [Backend FastAPI]
+  BLE Scanner + PDR   <-HTTP->  /spaces/sync
+  NavigationViewModel           /route/calculate
+  Jetpack Compose               /analytics/ping
+         |                            |
+         |                    [PostgreSQL 16]
+         |                    PostGIS + pgRouting
+         +---- offline-first: grafo local ----+
+\end{verbatim}
+\caption{Visão geral da arquitetura do sistema de navegação indoor.}
+\label{fig:arquitetura}
+\end{figure}
 
 \subsection{Banco de Dados Geoespacial}
 
-O banco de dados é implementado em PostgreSQL 16 com as extensões PostGIS e pgRouting.
-As entidades centrais são:
+O banco de dados é implementado em PostgreSQL 16 com as extensões PostGIS (dados
+geoespaciais) e pgRouting (algoritmos de grafos). As entidades centrais são:
 
 \begin{itemize}
-  \item \textbf{Space:} representa o ambiente físico (ex.: shopping, hospital);
-  \item \textbf{Unit:} sala, loja ou departamento dentro do espaço;
-  \item \textbf{Beacon:} ponto de referência BLE com coordenadas (x, y) no plano do espaço;
-  \item \textbf{EdgeLine:} aresta do grafo de navegação, conectando dois nós com atributos
-        de acessibilidade (escada, rampa, elevador);
+  \item \textbf{Space:} representa o ambiente físico (ex.: \textit{shopping}, hospital);
+  \item \textbf{Unit:} sala, loja ou departamento dentro do espaço, com atributo
+        \texttt{is\_blocked} para indicar interdição temporária;
+  \item \textbf{Beacon:} ponto de referência BLE com coordenadas geográficas conhecidas;
+  \item \textbf{EdgeLine:} aresta do grafo de navegação com atributos de acessibilidade
+        (\texttt{is\_accessible}, \texttt{restriction\_level}) que codificam escadas,
+        rampas e elevadores;
   \item \textbf{POI:} ponto de interesse vinculado a uma unidade.
 \end{itemize}
 
 O esquema adota versionamento incremental via campo \texttt{version} na entidade
-\texttt{Space}, permitindo que o aplicativo sincronize apenas atualizações delta.
+\texttt{Space}. O aplicativo consulta a versão antes de cada sessão e realiza
+sincronização completa apenas quando detecta divergência, reduzindo o consumo de
+dados em atualizações incrementais.
 
-\subsection{Backend — API REST}
+\subsection{\textit{Backend} — API REST}
 
-O backend é desenvolvido com FastAPI (Python 3.13+) e SQLAlchemy assíncrono com driver
-asyncpg. A Tabela~\ref{tab:endpoints} apresenta os principais endpoints.
+O \textit{backend} é desenvolvido com FastAPI (Python 3.13+) e SQLAlchemy assíncrono
+com \textit{driver} asyncpg. A Tabela~\ref{tab:endpoints} apresenta os principais
+\textit{endpoints}.
 
 \begin{table}[ht]
 \caption{Endpoints principais da API de navegação indoor}
@@ -157,9 +199,9 @@ asyncpg. A Tabela~\ref{tab:endpoints} apresenta os principais endpoints.
 \hline
 \textbf{Endpoint} & \textbf{Método} & \textbf{Função} \\
 \hline
-\texttt{/spaces/\{id\}/version} & GET & Verificação de versão do mapa \\
-\texttt{/spaces/\{id\}/sync}    & GET & Sincronização GeoJSON completa \\
-\texttt{/search}                & GET & Busca de unidades/POIs \\
+\texttt{/spaces/\{id\}/version} & GET  & Verificação de versão do mapa \\
+\texttt{/spaces/\{id\}/sync}    & GET  & Sincronização GeoJSON completa \\
+\texttt{/search}                & GET  & Busca textual de unidades e POIs \\
 \texttt{/route/calculate}       & POST & Cálculo de rota com perfil de acessibilidade \\
 \texttt{/analytics/ping}        & POST & Registro anônimo de presença \\
 \texttt{/admin/spaces/publish}  & POST & Publicação de nova versão do mapa \\
@@ -167,144 +209,188 @@ asyncpg. A Tabela~\ref{tab:endpoints} apresenta os principais endpoints.
 \end{tabular}
 \end{table}
 
-O endpoint \texttt{/route/calculate} recebe a posição de origem, o destino e o
-perfil de acessibilidade do usuário (padrão ou cadeirante), delegando o cálculo ao
-pgRouting via algoritmo de Dijkstra sobre o grafo de \texttt{EdgeLines} filtrado
-pelos atributos de acessibilidade.
+O \textit{endpoint} \texttt{/route/calculate} recebe a posição de origem, o destino
+e o perfil de acessibilidade do usuário, delegando o cálculo ao pgRouting via
+algoritmo de Dijkstra sobre o grafo de \texttt{EdgeLines} filtrado pelo atributo
+\texttt{restriction\_level}.
 
 \subsection{Aplicativo Android}
 
-O aplicativo é desenvolvido em Kotlin com Jetpack Compose como framework de interface,
-seguindo a arquitetura MVVM com \texttt{NavigationViewModel} como ponto central de
-estado. A comunicação com o backend utiliza Retrofit/OkHttp com serialização GeoJSON
-via Kotlinx Serialization.
+O aplicativo é desenvolvido em Kotlin com Jetpack Compose como \textit{framework}
+de interface, seguindo a arquitetura MVVM com \texttt{NavigationViewModel} como
+ponto central de estado reativo (\texttt{StateFlow}). A comunicação com o
+\textit{backend} utiliza Retrofit/OkHttp com serialização GeoJSON via
+Kotlinx Serialization.
 
 % ============================================================
 \section{Posicionamento Indoor Híbrido}
 % ============================================================
 
-\subsection{Beacons BLE}
+\subsection{Ancoragem por Beacons BLE}
 
-Beacons BLE comerciais são distribuídos pelo espaço físico em posições conhecidas.
-O aplicativo realiza varredura contínua dos sinais BLE e identifica o beacon mais
-próximo com base no RSSI (\textit{Received Signal Strength Indicator}), utilizando-o
-como âncora de posição. A detecção de proximidade do beacon aciona uma correção
-de posição no estado do PDR.
+Beacons BLE comerciais são distribuídos pelo espaço físico em posições geodésicas
+previamente cadastradas no banco de dados. O aplicativo realiza varredura contínua
+dos sinais BLE e identifica o beacon de maior RSSI (\textit{Received Signal Strength
+Indicator}) como âncora de posição corrente. Ao detectar um beacon com RSSI superior
+ao limiar configurável (padrão: $-70$ dBm), o sistema substitui a posição estimada
+pelo PDR pelas coordenadas conhecidas do beacon, corrigindo o erro de deriva acumulado.
 
 \subsection{Dead Reckoning Pedestre com Filtro de Madgwick}
 
-O PDR estima o deslocamento do usuário a partir dos sensores inerciais do smartphone:
-acelerômetro, giroscópio e magnetômetro (configuração MARG — \textit{Magnetic, Angular
-Rate and Gravity}). O Filtro de Madgwick \cite{Madgwick2010} realiza a fusão desses
-sensores com complexidade computacional $\mathcal{O}(1)$ por amostra, calculando o
-quaternion de orientação $\mathbf{q}$ iterativamente:
+O PDR estima o deslocamento do usuário a partir dos sensores inerciais do
+\textit{smartphone}: acelerômetro, giroscópio e magnetômetro (configuração MARG —
+\textit{Magnetic, Angular Rate and Gravity}). O Filtro de Madgwick \cite{Madgwick2010}
+realiza a fusão desses sensores com complexidade computacional $\mathcal{O}(1)$ por
+amostra, calculando o quaternion de orientação $\mathbf{q}$ de forma iterativa:
 
 \begin{equation}
   \dot{\mathbf{q}} = \frac{1}{2}\mathbf{q} \otimes \boldsymbol{\omega} -
   \beta \frac{\nabla f}{\|\nabla f\|}
+  \label{eq:madgwick}
 \end{equation}
 
 \noindent onde $\boldsymbol{\omega}$ é a velocidade angular medida pelo giroscópio,
-$\beta$ é o ganho de correção e $\nabla f$ é o gradiente da função objetivo que
-minimiza o erro entre a aceleração medida e o vetor gravidade estimado.
+$\beta$ é o ganho de correção (ajustável empiricamente) e $\nabla f$ é o gradiente
+da função objetivo que minimiza o erro entre a aceleração medida e o vetor gravidade
+estimado a partir da orientação atual.
 
-O comprimento do passo é calculado dinamicamente a partir da variância da aceleração
-vertical ao longo de uma janela deslizante, conforme a equação:
+O comprimento do passo é estimado dinamicamente a partir da variação da aceleração
+vertical ao longo de uma janela temporal deslizante:
 
 \begin{equation}
   L_{\text{passo}} = L_{\text{base}} \cdot \left(1 + k \cdot
   \frac{\sigma_a - \sigma_{\text{ref}}}{\sigma_{\text{ref}}}\right)
+  \label{eq:step}
 \end{equation}
 
-\noindent onde $L_{\text{base}}$ é o comprimento de passo base calibrado,
-$\sigma_a$ é o desvio padrão da aceleração e $k$ é um fator de escala empírico.
+\noindent onde $L_{\text{base}}$ é o comprimento de passo base calibrado por
+usuário, $\sigma_a$ é o desvio padrão da aceleração na janela corrente e $k$
+é um fator de escala empírico.
 
-\subsection{Fusão Híbrida}
+\subsection{Fusão Híbrida e Correção de Deriva}
 
-A posição estimada é combinada entre a âncora BLE e o PDR de acordo com a proximidade
-ao beacon detectado. Quando o RSSI indica proximidade ($< -70$ dBm), a posição é
-corrigida para as coordenadas do beacon. Entre correções, a posição é atualizada
-exclusivamente pelo PDR, mantendo a navegação contínua sem dependência de cobertura
-BLE contínua.
+Entre correções por beacon, a posição é propagada exclusivamente pelo PDR. A fusão
+híbrida atua como um mecanismo de \textit{reset} periódico: cada beacon detectado
+reinicia o acúmulo de erro inercial a partir de uma âncora de posição conhecida.
+Essa estratégia dispensa redes densas de beacons — a cobertura não precisa ser
+contínua, apenas suficiente para limitar o intervalo máximo de deriva.
 
 % ============================================================
-\section{Resultados}
+\section{Avaliação Experimental}
 % ============================================================
 
-O sistema foi validado em cenário simulado de ambiente indoor com layout de corredor,
-utilizando dispositivo Android físico com sensores IMU. Os principais resultados obtidos
-foram:
+\subsection{Configuração da Avaliação}
+
+A validação preliminar foi conduzida nos corredores do Instituto de Informática da UFG
+(Goiânia -- GO), ambiente indoor representativo com trechos de corredor, cruzamentos
+e salas distribuídas em planta baixa irregular. Foram utilizados 4 beacons BLE
+com distância máxima de 5 metros entre si, cobrindo o trajeto de avaliação.
+O dispositivo móvel utilizado executava Android 7.0 ou superior, requisito mínimo
+do aplicativo para acesso à API de sensores IMU via \texttt{SensorManager}.
+O cálculo de rota é executado localmente no dispositivo via \texttt{RouteCalculator},
+eliminando dependência de latência de rede durante a navegação.
+
+Dado o caráter de prova de conceito desta avaliação, não foram realizadas medições
+formais com gabarito físico ou número fixo de repetições controladas. Os resultados
+apresentados a seguir são observacionais, obtidos durante sessões de uso do
+aplicativo no ambiente descrito.
+
+\subsection{Resultados Observacionais}
+
+Durante as sessões de validação, o sistema demonstrou comportamento estável de
+rastreamento ao longo dos corredores do Instituto de Informática. Os principais
+resultados observados foram:
 
 \begin{itemize}
-  \item \textbf{Acurácia de posicionamento:} erro médio de 2,1 metros, com 95\% das
-        amostras abaixo de 3 metros;
-  \item \textbf{Latência de rota:} tempo médio de resposta do endpoint
-        \texttt{/route/calculate} de 87 ms (mediana), adequado para uso interativo;
-  \item \textbf{Operação offline:} funcionamento completo após sincronização inicial
-        do mapa, sem requisições adicionais ao backend durante a navegação;
-  \item \textbf{Sincronização delta:} redução de 73\% no volume de dados transferido
-        em atualizações incrementais comparado à sincronização completa.
+  \item \textbf{Erro de posicionamento estimado:} a distância entre a posição
+        exibida no aplicativo e a posição real do usuário foi estimada
+        observacionalmente em aproximadamente 1,5 metros em condições normais
+        de corredor, valor compatível com a literatura para fusão BLE + PDR
+        em ambientes similares \cite{Faragher2015};
+  \item \textbf{Estabilidade do rastreamento:} o Filtro de Madgwick manteve
+        estimativa de orientação estável mesmo durante mudanças bruscas de
+        direção e variações de ritmo de caminhada;
+  \item \textbf{Correção por beacon:} a cada passagem por um beacon, o erro
+        acumulado de deriva PDR foi visivelmente corrigido, confirmando o
+        funcionamento do mecanismo de ancoragem;
+  \item \textbf{Operação \textit{offline}:} após a sincronização inicial do
+        mapa, a navegação funcionou completamente sem requisições adicionais
+        ao \textit{backend}, validando a arquitetura \textit{offline-first}.
 \end{itemize}
 
-A conformidade com a LGPD foi garantida pelo armazenamento exclusivo de dados
-agregados no endpoint de analytics, sem persistência de identificadores de usuário
-ou trajetórias individuais.
+\subsection{Discussão e Limitações}
+
+Os resultados indicam que a fusão BLE + PDR via Filtro de Madgwick é viável para
+navegação indoor em ambientes de corredor com densidade moderada de beacons.
+Identificam-se, contudo, as seguintes limitações desta avaliação: (i) a estimativa
+de erro de posicionamento é observacional e não substitui medição formal por gabarito;
+(ii) o erro de PDR cresce proporcionalmente em percursos longos sem cobertura de
+beacon; (iii) a precisão do RSSI é sensível a obstruções físicas e variações de
+tráfego humano; e (iv) a avaliação foi conduzida em ambiente de corredor único,
+não cobrindo topologias com múltiplos andares. Uma avaliação quantitativa
+controlada constitui trabalho futuro prioritário.
 
 % ============================================================
 \section{Disponibilidade e Demonstração}
 % ============================================================
 
-\subsection{Código-Fonte e Documentação}
+\subsection{Código-Fonte e Reprodutibilidade}
 
-O sistema é disponibilizado publicamente sob a licença
-\textbf{Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)}.
-O código-fonte completo, incluindo o backend FastAPI, o aplicativo Android e
-os esquemas do banco de dados, está disponível no repositório:
+O sistema é disponibilizado integralmente sob a licença
+\textbf{Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)},
+incluindo \textit{backend} FastAPI, aplicativo Android e esquemas do banco de dados:
 
 \begin{itemize}
   \item \textbf{Repositório:}
         \url{https://github.com/Jpborgesll/navegacao-indoor-srbc-2026}
-  \item \textbf{Documentação e manual de instalação:}
+  \item \textbf{Documentação e instalação:}
         \url{https://github.com/Jpborgesll/navegacao-indoor-srbc-2026#readme}
 \end{itemize}
 
-O repositório contém instruções de instalação, requisitos de execução,
-exemplos mínimos de uso e arquivos de configuração para execução via Docker.
+A reprodução do ambiente de execução é viabilizada por um arquivo
+\texttt{docker-compose.yml} que provisiona automaticamente o banco de dados
+PostgreSQL/PostGIS/pgRouting e o \textit{backend} FastAPI com um único comando
+(\texttt{docker compose up --build}), eliminando dependências de configuração manual.
 
 \subsection{Planejamento da Demonstração no SBRC}
 
-A demonstração ao vivo do sistema será realizada com o seguinte conjunto de equipamentos:
+A demonstração ao vivo será conduzida com os seguintes equipamentos:
 
 \begin{itemize}
-  \item \textbf{Smartphone Android} (API 26+) com o aplicativo instalado,
-        contendo sensores IMU (acelerômetro, giroscópio e magnetômetro);
-  \item \textbf{3 beacons BLE comerciais} (ex.: Estimote ou compatível iBeacon/Eddystone)
+  \item \textbf{Smartphone Android} (API 26+) com sensores IMU e aplicativo instalado;
+  \item \textbf{3 beacons BLE comerciais} (compatíveis com iBeacon/Eddystone)
         posicionados no espaço de demonstração;
-  \item \textbf{Notebook} com Docker e docker-compose para execução local do backend
-        FastAPI e do banco de dados PostgreSQL/PostGIS;
-  \item \textbf{Roteador Wi-Fi portátil} para comunicação entre o smartphone e o backend
-        local durante a demonstração.
+  \item \textbf{Notebook} com Docker para execução local do \textit{backend} e
+        do banco de dados;
+  \item \textbf{Roteador Wi-Fi portátil} para comunicação entre dispositivos.
 \end{itemize}
 
-A demonstração consistirá em: (i) varredura dos beacons pelo aplicativo;
-(ii) cálculo e exibição de rota acessível em tempo real; e
-(iii) atualização contínua da posição estimada via fusão BLE + PDR enquanto
-o usuário percorre o espaço.
+A demonstração consistirá em: (i) varredura e detecção dos beacons pelo aplicativo;
+(ii) cálculo e exibição de rota acessível em tempo real; e (iii) rastreamento
+contínuo de posição via fusão BLE + PDR durante o percurso do demonstrador.
 
 % ============================================================
 \section{Conclusão}
 % ============================================================
 
-Este trabalho apresentou um sistema de navegação indoor que combina beacons
-BLE com PDR via Filtro de Madgwick em uma arquitetura offline-first completa. O sistema
-demonstrou viabilidade técnica e econômica, atingindo precisão inferior a 3 metros com
-hardware de baixo custo e integrando roteamento acessível e analytics em conformidade
-com a LGPD.
+Este trabalho apresentou um sistema de navegação indoor de baixo custo que combina
+ancoragem por beacons BLE com Dead Reckoning Pedestre via Filtro de Madgwick em
+uma arquitetura \textit{offline-first} completa. A validação preliminar nos corredores
+do Instituto de Informática da UFG, com 4 beacons posicionados a até 5 metros entre
+si, demonstrou rastreamento estável com erro estimado de aproximadamente 1,5 metros,
+evidenciando a viabilidade técnica da abordagem em cenário indoor real com
+infraestrutura de baixo custo.
 
-Como trabalhos futuros, planeja-se: (i) validação em escala real em ambiente de shopping
-com múltiplos andares; (ii) implementação de calibração automática do comprimento do
-passo via aprendizado por reforço; e (iii) extensão do módulo de analytics com detecção
-de zonas de congestionamento em tempo real.
+Do ponto de vista de engenharia de software, a ferramenta contribui com uma
+implementação reproduzível e de código aberto que integra fusão sensorial, roteamento
+geoespacial acessível e analytics em conformidade com a LGPD, disponível para
+uso e extensão pela comunidade de pesquisa.
+
+Como trabalhos futuros, planeja-se: (i) validação em ambientes de maior escala e
+complexidade topológica, incluindo múltiplos andares; (ii) calibração automática
+do ganho $\beta$ do Filtro de Madgwick e do comprimento de passo via aprendizado
+adaptativo; e (iii) extensão do módulo de analytics com detecção de zonas de
+congestionamento em tempo real por clustering de trajetórias anonimizadas.
 
 % ============================================================
 %  REFERÊNCIAS
@@ -315,7 +401,8 @@ de zonas de congestionamento em tempo real.
 \bibitem{Liu2007}
 Liu, H., Darabi, H., Banerjee, P., and Liu, J. (2007).
 Survey of wireless indoor positioning techniques and systems.
-\textit{IEEE Transactions on Systems, Man, and Cybernetics, Part C}, 37(6):1067--1080.
+\textit{IEEE Transactions on Systems, Man, and Cybernetics, Part C},
+37(6):1067--1080.
 
 \bibitem{Zafari2019}
 Zafari, F., Gkelias, A., and Leung, K. K. (2019).
