@@ -47,7 +47,8 @@ Madgwick filter. The system adopts an offline-first architecture, synchronizing
 a versioned geospatial graph to the mobile device and computing accessible routes
 via pgRouting. The tool is fully available under a CC BY-SA 4.0 license, including
 a containerized deployment via Docker, and was evaluated in a real indoor scenario
-at UFG's Institute of Informatics.
+at UFG's Institute of Informatics, with 4 BLE beacons spaced up to 5 meters apart,
+yielding an estimated positioning error of approximately 1.5 meters.
 \end{abstract}
 
 % ============================================================
@@ -64,15 +65,17 @@ por meio de fusão de sensores IMU utilizando o Filtro de Madgwick. O sistema ad
 arquitetura \textit{offline-first}, sincronizando um grafo geoespacial versionado
 para o dispositivo móvel e calculando rotas acessíveis via pgRouting. A ferramenta
 está disponível integralmente sob licença CC BY-SA 4.0, com implantação conteinerizada
-via Docker, e foi avaliada em cenário indoor real no Instituto de Informática da UFG.
+via Docker, e foi avaliada em cenário indoor real no Instituto de Informática da UFG,
+com 4 beacons BLE posicionados a até 5 metros entre si, apresentando erro de
+posicionamento estimado de aproximadamente 1,5 metros.
 \end{resumo}
 
 % ============================================================
 \section{Introdução}
 % ============================================================
 
-Ambientes construídos de grande escala — \textit{shoppings}, hospitais, aeroportos
-e \textit{campi} universitários — concentram diariamente milhões de usuários que
+Ambientes construídos de grande escala --- \textit{shoppings}, hospitais, aeroportos
+e \textit{campi} universitários --- concentram diariamente milhões de usuários que
 dependem de orientação espacial eficiente. Estima-se que 80\% do tempo das pessoas
 seja passado em ambientes internos \cite{Zafari2019}, onde o GPS apresenta degradação
 severa de desempenho em razão da atenuação e do multipercurso dos sinais satelitais
@@ -117,8 +120,8 @@ A literatura de posicionamento indoor tem sido extensivamente revisada nos últi
 anos \cite{Zafari2019, Liu2007}. As abordagens podem ser sistematizadas em função
 de três critérios: precisão, custo de infraestrutura e dependência de conectividade.
 
-Sistemas baseados exclusivamente em RSSI de beacons BLE — como iBeacon (Apple) e
-Eddystone (Google) — atingem precisão de 1 a 3 metros em condições controladas,
+Sistemas baseados exclusivamente em RSSI de beacons BLE --- como iBeacon (Apple) e
+Eddystone (Google) --- atingem precisão de 1 a 3 metros em condições controladas,
 porém sofrem degradação acentuada em ambientes com obstáculos e tráfego humano
 intenso \cite{Faragher2015}. Técnicas de \textit{fingerprinting} Wi-Fi melhoram a
 robustez em ambientes densos, mas exigem mapeamento prévio extenso e são sensíveis
@@ -176,7 +179,7 @@ O esquema adota versionamento incremental via campo \texttt{version} na entidade
 sincronização completa apenas quando detecta divergência, reduzindo o consumo de
 dados em atualizações incrementais.
 
-\subsection{\textit{Backend} — API REST}
+\subsection{\textit{Backend} --- API REST}
 
 O \textit{backend} é desenvolvido com FastAPI (Python 3.13+) e SQLAlchemy assíncrono
 com \textit{driver} asyncpg. A Tabela~\ref{tab:endpoints} apresenta os principais
@@ -242,7 +245,7 @@ pelo PDR pelas coordenadas conhecidas do beacon, corrigindo o erro de deriva acu
 \subsection{Dead Reckoning Pedestre com Filtro de Madgwick}
 
 O PDR estima o deslocamento do usuário a partir dos sensores inerciais do
-\textit{smartphone}: acelerômetro, giroscópio e magnetômetro (configuração MARG —
+\textit{smartphone}: acelerômetro, giroscópio e magnetômetro (configuração MARG ---
 \textit{Magnetic, Angular Rate and Gravity}). O Filtro de Madgwick \cite{Madgwick2010}
 realiza a fusão desses sensores com complexidade computacional $\mathcal{O}(1)$ por
 amostra, calculando o quaternion de orientação $\mathbf{q}$ de forma iterativa:
@@ -276,7 +279,7 @@ usuário, $\sigma_a$ é o desvio padrão da aceleração na janela corrente e $k
 Entre correções por beacon, a posição é propagada exclusivamente pelo PDR. A fusão
 híbrida atua como um mecanismo de \textit{reset} periódico: cada beacon detectado
 reinicia o acúmulo de erro inercial a partir de uma âncora de posição conhecida.
-Essa estratégia dispensa redes densas de beacons — a cobertura não precisa ser
+Essa estratégia dispensa redes densas de beacons --- a cobertura não precisa ser
 contínua, apenas suficiente para limitar o intervalo máximo de deriva.
 
 % ============================================================
@@ -362,12 +365,12 @@ A demonstração ao vivo será conduzida com os seguintes equipamentos:
 
 \begin{itemize}
   \item \textbf{Smartphone Android} (API 26+) com sensores IMU e aplicativo instalado;
-  \item \textbf{3 beacons BLE comerciais} (compatíveis com iBeacon/Eddystone)
-        posicionados no espaço de demonstração;
+  \item \textbf{4 beacons BLE comerciais} (compatíveis com iBeacon/Eddystone)
+        posicionados no espaço de demonstração com distância máxima de 5 metros;
   \item \textbf{Notebook} com Docker para execução local do \textit{backend} e
         do banco de dados;
   \item \textbf{Roteador Wi-Fi portátil} para comunicação entre dispositivos.
-\end{itemize}
+\end{itemize>
 
 A demonstração consistirá em: (i) varredura e detecção dos beacons pelo aplicativo;
 (ii) cálculo e exibição de rota acessível em tempo real; e (iii) rastreamento
