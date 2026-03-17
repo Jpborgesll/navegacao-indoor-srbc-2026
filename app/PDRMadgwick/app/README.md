@@ -1,6 +1,6 @@
 # Módulo App - Lógica e UI
 
-Este diretório contém o código-fonte, recursos e configurações de build do aplicativo LOCARE.
+Este diretório contém o código-fonte, recursos e configurações de build do aplicativo Sistema de Navegação Indoor.
 
 ## Estrutura Interna
 - `src/main/java/com/example/pdrmadgwick/`: Código Kotlin principal (Lógica de sensores e Navegação).

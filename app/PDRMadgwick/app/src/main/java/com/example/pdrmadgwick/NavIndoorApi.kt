@@ -46,7 +46,7 @@ data class RouteResponse(
     val geojson: JsonElement
 )
 
-interface LocareApi {
+interface NavIndoorApi {
     @GET("spaces/{id}/version")
     suspend fun getVersion(@Path("id") id: Int): SpaceVersion
 

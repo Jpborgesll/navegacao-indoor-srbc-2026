@@ -1,4 +1,4 @@
-# Módulo de Banco de Dados - LOCARE
+# Módulo de Banco de Dados - Sistema de Navegação Indoor
 
 Este diretório contém toda a modelagem e scripts de estrutura de dados para o sistema de navegação indoor.
 

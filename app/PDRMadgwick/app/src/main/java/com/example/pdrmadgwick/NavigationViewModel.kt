@@ -65,7 +65,7 @@ class NavigationViewModel : ViewModel(), SensorEventListener {
     private var yawSum = 0.0; private var yawCount = 0; private var yawLast = 0.0
     private var yawRef: Double? = null; private var yawChangeMax = 0.0
 
-    private val api: LocareApi by lazy {
+    private val api: NavIndoorApi by lazy {
         val json = Json { ignoreUnknownKeys = true }
         val contentType = "application/json".toMediaType()
         Retrofit.Builder()
@@ -73,7 +73,7 @@ class NavigationViewModel : ViewModel(), SensorEventListener {
             .client(OkHttpClient())
             .addConverterFactory(json.asConverterFactory(contentType))
             .build()
-            .create(LocareApi::class.java)
+            .create(NavIndoorApi::class.java)
     }
 
     fun initSensors(context: Context) {

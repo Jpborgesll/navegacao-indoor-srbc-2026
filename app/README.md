@@ -1,6 +1,6 @@
 # Módulo de Navegação Indoor (App)
 
-Esta pasta contém o coração do sistema de rastreamento e navegação do projeto **Locare**. O sistema evoluiu de protótipos em Python para um aplicativo Android nativo completo, focado em alta precisão e integração com serviços de mapa.
+Esta pasta contém o coração do sistema de rastreamento e navegação indoor. O sistema evoluiu de protótipos em Python para um aplicativo Android nativo completo, focado em alta precisão e integração com serviços de mapa.
 
 ## Evolução e Funcionalidades
 

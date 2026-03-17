@@ -1,6 +1,6 @@
-# LOCARE - Android Client (PDRMadgwick)
+# Sistema de Navegação Indoor - Android Client (PDRMadgwick)
 
-Este projeto é o cliente mobile do sistema de navegação indoor **LOCARE**. Ele utiliza sensores do smartphone para estimar a posição do usuário em ambientes fechados onde o GPS é ineficaz.
+Este projeto é o cliente mobile do sistema de navegação indoor **Sistema de Navegação Indoor**. Ele utiliza sensores do smartphone para estimar a posição do usuário em ambientes fechados onde o GPS é ineficaz.
 
 ## Tecnologias
 - **Kotlin**: Linguagem principal.

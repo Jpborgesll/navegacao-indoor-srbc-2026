@@ -11,7 +11,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="LOCARE Backend", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Indoor Navigation API", version="0.1.0", lifespan=lifespan)
 
 app.include_router(spaces.router, tags=["spaces"])
 app.include_router(search.router, tags=["search"])

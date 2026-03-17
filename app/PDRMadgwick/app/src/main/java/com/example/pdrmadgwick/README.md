@@ -1,6 +1,6 @@
-# Core Logic - LOCARE
+# Core Logic - Sistema de Navegação Indoor
 
-Este diretório contém a lógica de navegação e atitude do sistema LOCARE, dividida por responsabilidades.
+Este diretório contém a lógica de navegação e atitude do sistema Sistema de Navegação Indoor, dividida por responsabilidades.
 
 ## Arquivos Principais
 

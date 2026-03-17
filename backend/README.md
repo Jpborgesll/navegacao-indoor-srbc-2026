@@ -1,6 +1,6 @@
-# Backend - Sistema LOCARE
+# Backend - Sistema Sistema de Navegação Indoor
 
-Este diretório contém a API backend do sistema de navegação indoor LOCARE, construída com FastAPI e PostgreSQL/PostGIS.
+Este diretório contém a API backend do sistema de navegação indoor Sistema de Navegação Indoor, construída com FastAPI e PostgreSQL/PostGIS.
 
 ## Tecnologias
 - **Python 3.13+**
