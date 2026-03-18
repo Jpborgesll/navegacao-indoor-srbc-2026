@@ -7,6 +7,8 @@
 \usepackage{listings}
 \usepackage{amsmath}
 \usepackage{booktabs}
+\usepackage{xurl}
+\usepackage{hyperref}
 
 \sloppy
 
@@ -19,13 +21,19 @@
 \author{
   Murillo Pires Teixeira Melo\inst{1},
   João Pedro Lucena Lisboa Borges\inst{1},
-  Pedro Lukas Alves de Sousa Santos\inst{1}
+  Pedro Lukas Alves de Sousa Santos\inst{1},\\
+  Eliomar Araújo de Lima\inst{1},
+  Valdemar Vicente Graciano Neto\inst{1},
+  Natália Leonel de Paiva\inst{2}
 }
 
 \address{
-  Instituto de Informática -- INF -- Universidade Federal de Goiás (UFG)\\
+  \inst{1} INF -- Instituto de Informática, Universidade Federal de Goiás (UFG)\\
   Goiânia -- Goiás -- Brasil\\
-  \email{\{murillomelo, borges.joao, pedrolukas\}@discente.ufg.br}
+  \email{\{murillomelo, borges.joao, pedrolukas, eliomar.lima, valdemarneto\}@ufg.br}
+  \nextinstitute
+  \inst{2} Wayfinder Y Tech\\
+  \email{natalialeonelp@gmail.com}
 }
 
 % ============================================================
@@ -349,9 +357,9 @@ incluindo \textit{backend} FastAPI, aplicativo Android e esquemas do banco de da
 
 \begin{itemize}
   \item \textbf{Repositório:}
-        \url{https://github.com/Jpborgesll/navegacao-indoor-srbc-2026}
+        \href{https://github.com/Jpborgesll/navegacao-indoor-srbc-2026}{github.com/Jpborgesll/navegacao-indoor-srbc-2026}
   \item \textbf{Documentação e instalação:}
-        \url{https://github.com/Jpborgesll/navegacao-indoor-srbc-2026#readme}
+        \href{https://github.com/Jpborgesll/navegacao-indoor-srbc-2026#readme}{github.com/Jpborgesll/navegacao-indoor-srbc-2026\#readme}
 \end{itemize}
 
 A reprodução do ambiente de execução é viabilizada por um arquivo
@@ -370,7 +378,7 @@ A demonstração ao vivo será conduzida com os seguintes equipamentos:
   \item \textbf{Notebook} com Docker para execução local do \textit{backend} e
         do banco de dados;
   \item \textbf{Roteador Wi-Fi portátil} para comunicação entre dispositivos.
-\end{itemize>
+\end{itemize}
 
 A demonstração consistirá em: (i) varredura e detecção dos beacons pelo aplicativo;
 (ii) cálculo e exibição de rota acessível em tempo real; e (iii) rastreamento
